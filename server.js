@@ -1,15 +1,37 @@
-var http = require('http')
+const express = require('express');
+const createError = require('http-errors');
+const dotenv = require('dotenv').config();
 
-var port = 8080
+const app = express();
 
-var server = http.createServer(function (request, response) {
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-  console.log('New request: ' + request.url)  
+// Initialize DB
+require('./initDB.js')();
 
-  response.writeHead(200, {'Content-Type': 'text/plain'})
-  response.end('Hello World\n')
-})
+const ProductRoute = require('./Routes/Product.route');
+app.use('/products', ProductRoute);
 
-server.listen(port, "0.0.0.0")
+//404 handler and pass to error handler
+app.use((req, res, next) => {
+  next(createError(404, 'Not found'));
+});
 
-console.log('Server running at http://localhost:' + port)
+//Error handler
+app.use((err, req, res, next) => {
+  res.status(err.status || 500);
+  res.send({
+    error: {
+      status: err.status || 500,
+      message: err.message
+    }
+  });
+});
+
+const PORT = process.env.PORT || 8080;
+
+//start express server
+app.listen(PORT, () => {
+  console.log('Server started on port ' + PORT + '...');
+});
