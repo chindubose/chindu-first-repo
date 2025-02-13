@@ -10,12 +10,6 @@ pipeline {
 
     stages {
         
-        stage('Cloning Repo') {
-            steps {
-                git branch: 'branch_for_api', url: 'https://github.com/chindubose/chindu-first-repo'
-            }
-        }
-        
         stage('Building the project') {
             steps {
                 sh 'npm install'
